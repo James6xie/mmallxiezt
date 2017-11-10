@@ -1,5 +1,8 @@
 package com.mmall.service;
 
+import com.mmall.common.ServerResponse;
+import com.mmall.pojo.User;
+
 /**
  * @author: zhongtianemail@gmail.com
  * @create 2017-11-08 下午2:56
@@ -7,5 +10,5 @@ package com.mmall.service;
  **/
 public interface IUserService {
 
-    Object login(String username, String password);
+    ServerResponse<User> login(String username, String password);
 }
