@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * @author: zhongtianemail@gmail.com
  * @create 2017-11-08 下午3:00
@@ -41,7 +43,8 @@ public class UserServiceImpl implements IUserService{
     }
 
     public ServerResponse<String> register(User user){
-        ServerResponse validResponse = checkValid(user.getUsername(),Const.USERNAME);//重用checkValid
+        //重用checkValid
+        ServerResponse validResponse = checkValid(user.getUsername(),Const.USERNAME);
         if(!validResponse.isSuccess()){
             return validResponse;
         }
@@ -79,5 +82,24 @@ public class UserServiceImpl implements IUserService{
             return ServerResponse.createByErrorMessage("参数错误");
         }
         return ServerResponse.createBySuccessMessage("校验成功");
+    }
+
+    public ServerResponse selectQuestion(String username){
+        ServerResponse validResponse = this.checkValid(username, Const.USERNAME);
+        if(validResponse.isSuccess()){
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+        String question = userMapper.selectQuestionByUsername(username);
+            if(StringUtils.isNotBlank(question)){
+                return ServerResponse.createBySuccess(question);
+            }
+        return ServerResponse.createByErrorMessage("找回密码问题是空的");
+    }
+
+    public ServerResponse<String> checkAnswer(String username, String question, String answer){
+        int resultCount = userMapper.checkAnswer(username, question, answer);
+        if(resultCount > 0){
+            String forgetToken = UUID.randomUUID().toString();
+        }
     }
 }
