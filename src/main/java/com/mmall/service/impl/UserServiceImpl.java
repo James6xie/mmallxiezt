@@ -43,6 +43,7 @@ public class UserServiceImpl implements IUserService{
         return ServerResponse.createBySuccess("登录成功", user);
     }
 
+    @Override
     public ServerResponse<String> register(User user){
         //重用checkValid
         ServerResponse validResponse = checkValid(user.getUsername(),Const.USERNAME);
@@ -64,6 +65,7 @@ public class UserServiceImpl implements IUserService{
         return ServerResponse.createBySuccessMessage("注册成功");
     }
 
+    @Override
     public ServerResponse<String> checkValid(String str, String type){
         if(StringUtils.isNotBlank(type)){
             //开始校验
@@ -85,6 +87,7 @@ public class UserServiceImpl implements IUserService{
         return ServerResponse.createBySuccessMessage("校验成功");
     }
 
+    @Override
     public ServerResponse selectQuestion(String username){
         ServerResponse validResponse = this.checkValid(username, Const.USERNAME);
         if(validResponse.isSuccess()){
@@ -97,13 +100,42 @@ public class UserServiceImpl implements IUserService{
         return ServerResponse.createByErrorMessage("找回密码问题是空的");
     }
 
+    @Override
     public ServerResponse<String> checkAnswer(String username, String question, String answer){
         int resultCount = userMapper.checkAnswer(username, question, answer);
         if(resultCount > 0){
             String forgetToken = UUID.randomUUID().toString();
-            TokenCache.setKey("token_"+username,forgetToken);
+            TokenCache.setKey(TokenCache.TOKEN_PREFIX+username,forgetToken);
             return ServerResponse.createBySuccess(forgetToken);
         }
         return ServerResponse.createByErrorMessage("问题的答案错误");
+    }
+
+    @Override
+    public ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken){
+        if(StringUtils.isBlank(forgetToken)){
+            return ServerResponse.createByErrorMessage("Token 需要擦传递")；
+        }
+        //校验username，有可能来一个token_
+        ServerResponse validResponse = this.checkValid(username, Const.USERNAME);
+        if(validResponse.isSuccess()){
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+
+        String token = TokenCache.getKey(TokenCache.TOKEN_PREFIX+username);
+        if(StringUtils.isBlank(token)){
+            //用户不存在
+            return ServerResponse.createByErrorMessage("token无效或者过期");
+        }
+        if (org.apache.commons.lang3.StringUtils.equals(forgetToken,token)){
+            String md5Password = MD5Util.MD5EncodeUtf8(passwordNew);
+            int rowCount = userMapper.updatePasswordByUsername(username,md5Password);
+            if(rowCount > 0){
+                return ServerResponse.createBySuccessMessage("修改密码成功")
+            }
+        }else {
+            return ServerResponse.createByErrorMessage("token错误，请重新获取修改密码的token");
+        }
+        return ServerResponse.createByErrorMessage("修改密码失败");
     }
 }

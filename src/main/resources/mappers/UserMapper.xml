@@ -176,11 +176,20 @@
     COUNT(1)
     FROM mmall_user
     WHERE username=#{username}
-    and question = #{question}
-    and answer = #{answer}
   </select>
   
   <select id="checkAnswer" resultType="int" parameterType="map">
     SELECT
+    COUNT(1)
+    FROM mmall_user
+    WHERE username =#{username}
+    and question =#{question}
+    and answer =#{answer}
   </select>
+
+  <update id="updatePasswordByUsername" parameterType="map">
+    UPDATE mmall_user
+    SET password = #{passwordNew},update_time = now()
+    WHERE username = #{username}
+  </update>
 </mapper>
