@@ -2,6 +2,7 @@ package com.mmall.service.impl;
 
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
+import com.mmall.common.TokenCache;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -100,6 +101,9 @@ public class UserServiceImpl implements IUserService{
         int resultCount = userMapper.checkAnswer(username, question, answer);
         if(resultCount > 0){
             String forgetToken = UUID.randomUUID().toString();
+            TokenCache.setKey("token_"+username,forgetToken);
+            return ServerResponse.createBySuccess(forgetToken);
         }
+        return ServerResponse.createByErrorMessage("问题的答案错误");
     }
 }

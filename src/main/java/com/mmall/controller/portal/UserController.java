@@ -94,7 +94,9 @@ public class UserController {
     }
 
     //校验问题答案
+    @RequestMapping(value = "forget_check_answer.do",method = RequestMethod.GET)//limit request as GET
+    @ResponseBody
     public ServerResponse<String>forgetCheckAnswer(String username, String question, String answer){
-        int resultCount = UserMapper.
+        return iUserService.checkAnswer(username, question, answer);
     }
 }
