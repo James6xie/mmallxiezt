@@ -49,7 +49,7 @@ public class UserController {
         return ServerResponse.createBySuccess();
     }
 
-    @RequestMapping(value = "register.do",method = RequestMethod.GET)//limit request as GET
+    @RequestMapping(value = "register.do",method = RequestMethod.POST)//limit request as GET
     @ResponseBody
     public ServerResponse<String> register(User user){
         return iUserService.register(user);
@@ -105,5 +105,35 @@ public class UserController {
     @ResponseBody
     public ServerResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken){
         return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
+    }
+
+    @RequestMapping(value = "reset_password.do",method = RequestMethod.GET)
+    @ResponseBody
+    //重置密码
+    public ServerResponse<String> resetPassword(HttpSession session, String passwordOld, String passwordNew){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        return iUserService.resetPassword(passwordOld,passwordNew,user);
+    }
+
+    @RequestMapping(value = "update_information.do",method = RequestMethod.GET)
+    @ResponseBody
+    //更新用户个人信息
+    public ServerResponse<User> updateInformation(HttpSession session, User user){
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorMessage("用户未登录");
+        }
+        //赋值为当前登录的userId和username
+        user.setId(currentUser.getId());
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> response = iUserService.updateInformation(user);
+        if(response.isSuccess()){
+            response.getData().setUsername(currentUser.getUsername());
+            session.setAttribute(Const.CURRENT_USER,response.getData());
+        }
+        return response;
     }
 }
