@@ -187,4 +187,18 @@ public class UserServiceImpl implements IUserService{
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess(user);
     }
+/**
+ * @author:zhongtianemail@gmail.com.cn
+ * @Description:校验是否为管理员
+ * @Param:
+ * @Return: 
+ * @Date:   17-11-29 下午3:46
+ */
+    public ServerResponse checkAminRole(User user){
+        if(user != null && user.getRole().intValue() == Const.Role.ROLE_ADMIN){
+            return ServerResponse.createBySuccess();
+        }else {
+            return ServerResponse.createByError();
+        }
+    }
 }
