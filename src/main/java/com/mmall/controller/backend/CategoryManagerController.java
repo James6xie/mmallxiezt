@@ -65,4 +65,34 @@ public class CategoryManagerController {
             return ServerResponse.createByErrorMessage("没有权限操作，不是管理员用户");
         }
     }
+
+    @RequestMapping("get_category.do")
+    @ResponseBody
+    public ServerResponse getChildParallelCategory(HttpSession session,@RequestParam(value = "categoryId",defaultValue = "0") Integer categoryId){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录");
+        }
+        if(iUserService.checkAminRole(user).isSuccess()){
+            //查询子节点的category信息，只查平级（不递归查询）
+            return iCategoryService.getChildParallelCategory(categoryId);
+        }else {
+            return ServerResponse.createByErrorMessage("没有权限，不是管理员用户");
+        }
+    }
+
+    @RequestMapping("get_category_recurse.do")
+    @ResponseBody
+    public ServerResponse getCategoryIdRecurse(HttpSession session,@RequestParam(value = "categoryId",defaultValue = "0") Integer categoryId){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录");
+        }
+        if(iUserService.checkAminRole(user).isSuccess()){
+            //查询当前节点Id并递归查询子节点的Id 0 --->10001-->10001001
+            return iCategoryService.getCategoryIdRecurse(categoryId);
+        }else {
+            return ServerResponse.createByErrorMessage("没有权限，需要管理员权限");
+        }
+    }
 }
