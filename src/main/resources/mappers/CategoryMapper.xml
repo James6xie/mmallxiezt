@@ -116,7 +116,7 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectChildParallelCategory" resultMap="BaseResultMap" parameterType="int">
+  <select id="selectChildParallelCategoryByPid" resultMap="BaseResultMap" parameterType="int">
     SELECT
     <include refid="Base_Column_List"/>
     FROM mmall_category
