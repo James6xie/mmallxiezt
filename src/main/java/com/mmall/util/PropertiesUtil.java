@@ -18,6 +18,7 @@ public class PropertiesUtil {
 
     private static Properties props;
 
+    //  静态代码块会在类加载的时候被执行有且只有一次；
     static {
         String fileName = "mmall.properties";
         props = new Properties();

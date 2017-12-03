@@ -194,6 +194,7 @@ public class UserServiceImpl implements IUserService{
  * @Return: 
  * @Date:   17-11-29 下午3:46
  */
+    @Override
     public ServerResponse checkAminRole(User user){
         if(user != null && user.getRole().intValue() == Const.Role.ROLE_ADMIN){
             return ServerResponse.createBySuccess();
