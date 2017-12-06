@@ -1,5 +1,8 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
@@ -10,11 +13,13 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListVo;
 import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -118,5 +123,50 @@ public class ProductServiceImpl implements IProductService {
         productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
 
         return productDetailVo;
+    }
+
+
+    public ServerResponse getProductList(int pageNum, int pageSize){
+        //startpage
+        //sql查询
+        //pagehelper收尾
+
+        //1.startpage
+        PageHelper.startPage(pageNum,pageSize);
+        List<Product> productList = productMapper.selectList();
+
+        //2.sql查询
+        List<ProductListVo> productListVoList = Lists.newArrayList();//将Vo放在list中
+        for (Product productItem:
+             productList) {
+            ProductListVo productListVo = assembleProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+
+        //3.分页的结果直接使用构造器进行sql返回集合的处理
+        PageInfo pageInfo = new PageInfo(productList);
+
+        //逻辑：给前段展示的内容不是把整个Product内容都给
+        pageInfo.setList(productListVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+
+    }
+
+    private ProductListVo assembleProductListVo(Product product){
+
+        ProductListVo productListVo = new ProductListVo();
+
+        productListVo.setId(product.getId());
+        productListVo.setId(product.getCategoryId());
+        productListVo.setName(product.getName());
+        productListVo.setSubtitle(product.getSubtitle());
+        productListVo.setMainImage(product.getMainImage());
+        productListVo.setPrice(product.getPrice());
+        productListVo.setStatus(product.getStatus());
+        productListVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://127.0.0.1/image"));
+
+        return productListVo;
+
     }
 }
