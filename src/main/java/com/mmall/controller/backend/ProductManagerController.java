@@ -88,4 +88,19 @@ public class ProductManagerController {
             return ServerResponse.createByErrorMessage("没有权限，不是管理员");
         }
     }
+
+    @RequestMapping("search.do")
+    @ResponseBody
+    public ServerResponse productSearch(HttpSession session, String productName, Integer productId, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        User user = (User)session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录");
+        }
+        if(iUserService.checkAminRole(user).isSuccess()){
+            //填充后台获取list业务
+            return iProductService.searchProduct(productName,productId,pageNum,pageSize);
+        }else {
+            return ServerResponse.createByErrorMessage("没有权限，不是管理员");
+        }
+    }
 }

@@ -126,6 +126,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
 
+    @Override
     public ServerResponse getProductList(int pageNum, int pageSize){
         //startpage
         //sql查询
@@ -136,7 +137,7 @@ public class ProductServiceImpl implements IProductService {
         List<Product> productList = productMapper.selectList();
 
         //2.sql查询
-        List<ProductListVo> productListVoList = Lists.newArrayList();//将Vo放在list中
+        List<ProductListVo> productListVoList = Lists.newArrayList();
         for (Product productItem:
              productList) {
             ProductListVo productListVo = assembleProductListVo(productItem);
@@ -165,8 +166,26 @@ public class ProductServiceImpl implements IProductService {
         productListVo.setPrice(product.getPrice());
         productListVo.setStatus(product.getStatus());
         productListVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://127.0.0.1/image"));
-
         return productListVo;
-
     }
+
+    @Override
+    public ServerResponse<PageInfo> searchProduct(String productName, Integer productId,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        if(StringUtils.isNotBlank(productName)){
+            productName = new StringBuilder().append("%").append(productName).append("%").toString();
+        }
+        List<Product> productList = productMapper.selectByNameAndProductId(productName,productId);
+        List<ProductListVo> productListVoList = Lists.newArrayList();
+        for (Product productItem:
+                productList) {
+            ProductListVo productListVo = assembleProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageInfo = new PageInfo(productList);
+        pageInfo.setList(productListVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
 }
