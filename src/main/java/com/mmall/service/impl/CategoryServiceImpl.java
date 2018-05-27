@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements ICategoryService{
      * @Date:   17-11-29 下午6:27
      */
     @Override
-    public ServerResponse  getCategoryIdRecurse(Integer categoryId){
+    public ServerResponse<List<Integer>>  getCategoryIdRecurse(Integer categoryId){
         Set<Category> categorySet = Sets.newHashSet();
         findChildCategory(categorySet,categoryId);
 
